@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders  } from '@angular/common/http';
-import { Data, IData} from './../models/data.model';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { Data, IData } from './../models/data.model';
 import { Joke, IJoke } from './../models/joke.model';
-import { Http } from '@angular/http';
+import { Http, Response } from '@angular/http';
 
 import { Observable } from 'rxjs/Observable';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
@@ -10,7 +10,7 @@ import { of } from 'rxjs/observable/of';
 
 import 'rxjs/add/operator/map';
 
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, tap, map } from 'rxjs/operators';
 
 @Injectable()
 export class JokeService {
@@ -26,32 +26,37 @@ export class JokeService {
   load() {
     console.log("loading random Chuck Norris joke")
     return new Promise((resolve, reject) => {
-        this.http
-            .get('https://api.icndb.com/jokes/random')
-            .map(res => res.json())
-            .subscribe(response => {
-                this.joke = response['value'];
-                console.log("joke loading complete")
-                resolve(true);
-            })
-    })
-}
-
-  load2() {
-    return new Promise((resolve: any, reject: any) => {
       this.http
         .get('https://api.icndb.com/jokes/random')
-        .pipe(
-        tap(data => console.log('Data: ' + JSON.stringify(data))),
-        tap((data: IData) => {
-          debugger;
-          this.joke = new Joke(data.value.id, data.value.joke, data.value.categories);
-          resolve(true)
-        }),
-        catchError(this.handleError)
-        );
+        .map(res => res.json())
+        .subscribe((response: Response) => {
+          this.joke = response['value'];
+          console.log("joke loading complete");
+          resolve(true);
+        },
+        (error: any) => {
+          this.handleError(error);
+          resolve(false);
+        }
+        )
     })
   }
+
+  // load2() {
+  //   return new Promise((resolve: any, reject: any) => {
+  //     this.http
+  //       .get('https://api.icndb.com/jokes/random')
+  //       .pipe(
+  //       tap((response: Response) => console.log('Data: ' + JSON.stringify(response))),
+  //       map((response: Response) => {
+  //         const data: IData = response['value'];
+  //         this.joke = new Joke(data.value.id, data.value.joke, data.value.categories);
+  //       }),
+  //       catchError(this.handleError)
+  //       );
+  //     resolve(true);
+  //   })
+  // }
 
   private handleError(err: HttpErrorResponse): ErrorObservable {
     // in a real world app, we may send the server to some remote logging infrastructure
