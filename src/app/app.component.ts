@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { JokeService } from './jokes/joke.service';
 import { IJoke } from './models/joke.model';
+import { NgbAccordion } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-root',
@@ -17,3 +18,4 @@ export class AppComponent {
   }
 
 }
+ 
